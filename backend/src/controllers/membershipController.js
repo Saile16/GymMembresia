@@ -20,14 +20,14 @@ exports.getClientWithCurrentMembership = async (req, res) => {
   }
 };
 
-exports.createMembership = async (membershipData) => {
-  const membership = new Membership(membershipData);
-  return await membership.save();
-};
-
 exports.addMembership = async (req, res) => {
   try {
-    const newMembership = await this.createMembership(req.body);
+    const membershipData = {
+      ...req.body,
+      client: req.params.clientId,
+    };
+    const newMembership = new Membership(membershipData);
+    await newMembership.save();
     res.status(201).json(newMembership);
   } catch (err) {
     console.error("Error in addMembership:", err);
@@ -37,34 +37,74 @@ exports.addMembership = async (req, res) => {
 
 exports.renewMembership = async (req, res) => {
   try {
-    // Marcar la membresía actual como expirada
-    await Membership.updateMany(
-      { client: req.params.clientId, status: "active" },
-      { $set: { status: "expired" } }
-    );
+    const { clientId } = req.params;
+    const { type, price, paymentMethod, notes } = req.body;
 
-    // Crear una nueva membresía
+    // Obtener la membresía activa actual
+    const currentMembership = await Membership.findOne({
+      client: clientId,
+      status: "active",
+    });
+
+    if (!currentMembership) {
+      return res
+        .status(404)
+        .json({ message: "No se encontró una membresía activa para renovar" });
+    }
+
+    // Marcar la membresía actual como expirada
+    currentMembership.status = "expired";
+    await currentMembership.save();
+
+    // Calcular la nueva fecha de inicio (un día después del fin de la membresía actual)
+    const newStartDate = new Date(currentMembership.endDate);
+    newStartDate.setDate(newStartDate.getDate() + 1);
+
+    // Calcular la nueva fecha de fin basada en el tipo de membresía
+    let newEndDate = new Date(newStartDate);
+    switch (type) {
+      case "mensual":
+        newEndDate.setMonth(newEndDate.getMonth() + 1);
+        break;
+      case "trimestral":
+        newEndDate.setMonth(newEndDate.getMonth() + 3);
+        break;
+      case "semestral":
+        newEndDate.setMonth(newEndDate.getMonth() + 6);
+        break;
+      case "anual":
+        newEndDate.setFullYear(newEndDate.getFullYear() + 1);
+        break;
+      default:
+        return res.status(400).json({ message: "Tipo de membresía no válido" });
+    }
+
+    // Crear la nueva membresía
     const newMembership = new Membership({
-      client: req.params.clientId,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      type: req.body.type,
-      price: req.body.price,
-      paymentMethod: req.body.paymentMethod,
-      notes: req.body.notes,
+      client: clientId,
+      startDate: newStartDate,
+      endDate: newEndDate,
+      type,
+      price,
+      paymentMethod,
+      notes,
+      status: "active",
     });
 
     await newMembership.save();
+
     res.status(200).json({
       message: "Membresía renovada con éxito",
-      membership: newMembership,
+      expiredMembership: currentMembership,
+      newMembership: newMembership,
     });
   } catch (err) {
+    console.error("Error al renovar la membresía:", err);
     res.status(400).json({ message: err.message });
   }
 };
 
-exports.getClientMembershipHistory = async (req, res) => {
+exports.getClientMemberships = async (req, res) => {
   try {
     const memberships = await Membership.find({
       client: req.params.clientId,
@@ -77,8 +117,8 @@ exports.getClientMembershipHistory = async (req, res) => {
 
 exports.updateMembership = async (req, res) => {
   try {
-    const updatedMembership = await Membership.findByIdAndUpdate(
-      req.params.id,
+    const updatedMembership = await Membership.findOneAndUpdate(
+      { _id: req.params.membershipId, client: req.params.clientId },
       req.body,
       { new: true }
     );
@@ -93,7 +133,10 @@ exports.updateMembership = async (req, res) => {
 
 exports.deleteMembership = async (req, res) => {
   try {
-    const membership = await Membership.findByIdAndDelete(req.params.id);
+    const membership = await Membership.findOneAndDelete({
+      _id: req.params.membershipId,
+      client: req.params.clientId,
+    });
     if (!membership) {
       return res.status(404).json({ message: "Membresía no encontrada" });
     }

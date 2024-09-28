@@ -1,12 +1,40 @@
 const Client = require("../models/Client");
 const Membership = require("../models/Membership");
 const membershipController = require("./membershipController");
+
 exports.getClients = async (req, res) => {
   try {
-    const clients = await Client.find();
-    res.json(clients);
-    console.log("LOS CLIENTES SON", clients);
+    const clients = await Client.find().select(
+      "firstName lastName phoneNumber firstJoinDate"
+    );
+
+    const clientsWithMembership = await Promise.all(
+      clients.map(async (client) => {
+        const currentMembership = await Membership.findOne({
+          client: client._id,
+          status: "active",
+        }).sort("-endDate");
+
+        return {
+          _id: client._id,
+          firstName: client.firstName,
+          lastName: client.lastName,
+          phoneNumber: client.phoneNumber,
+          firstJoinDate: client.firstJoinDate,
+          currentMembershipStart: currentMembership
+            ? currentMembership.startDate
+            : null,
+          currentMembershipEnd: currentMembership
+            ? currentMembership.endDate
+            : null,
+          status: currentMembership ? currentMembership.status : null,
+        };
+      })
+    );
+    console.log("CLIENTE QUE ES ? ", clientsWithMembership);
+    res.json(clientsWithMembership);
   } catch (err) {
+    console.error("Error fetching clients:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -17,6 +45,7 @@ exports.getClientById = async (req, res) => {
     if (!client) {
       return res.status(404).json({ message: "Cliente no encontrado" });
     }
+    console.log("CLIENTE ES ?", client);
     res.json(client);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -44,9 +73,8 @@ exports.addClient = async (req, res) => {
         ...req.body.membership,
         client: newClient._id,
       };
-      newMembership = await membershipController.createMembership(
-        membershipData
-      );
+      const membership = new Membership(membershipData);
+      newMembership = await membership.save();
     }
 
     res.status(201).json({ client: newClient, membership: newMembership });

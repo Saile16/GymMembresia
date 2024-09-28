@@ -15,16 +15,19 @@ router.get(
   "/:id/current-membership",
   membershipController.getClientWithCurrentMembership
 );
-router.post("/memberships", membershipController.addMembership);
+router.post("/:clientId/membership", membershipController.addMembership);
 router.post(
   "/:clientId/renew-membership",
   membershipController.renewMembership
 );
-router.get(
-  "/:clientId/membership-history",
-  membershipController.getClientMembershipHistory
+router.get("/:clientId/memberships", membershipController.getClientMemberships);
+router.put(
+  "/:clientId/membership/:membershipId",
+  membershipController.updateMembership
 );
-router.put("/memberships/:id", membershipController.updateMembership);
-router.delete("/memberships/:id", membershipController.deleteMembership);
+router.delete(
+  "/:clientId/membership/:membershipId",
+  membershipController.deleteMembership
+);
 
 module.exports = router;
