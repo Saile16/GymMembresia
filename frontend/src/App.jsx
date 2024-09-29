@@ -5,6 +5,7 @@ import AddClientForm from './components/AddClientForm';
 import RenewMembership from './components/RenewMembership';
 import EditClient from './components/EditClient';
 import EditMembership from './components/EditMembership';
+import UserHistory from './components/UserHistory';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/renew-membership/:id" element={<RenewMembership />} />
           <Route path="/edit-membership/:id" element={<EditMembership />} />
           <Route path="/edit-client/:id" element={<EditClient />} />
+          <Route path="/client/:id/history" element={<UserHistory />} />
         </Routes>
       </div>
     </Router>

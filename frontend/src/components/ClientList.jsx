@@ -55,7 +55,9 @@ const ClientList = () => {
         <tbody>
           {clients.map(client => (
             <tr key={client._id}>
-              <td>{client.firstName}</td>
+              <td><Link to={`/client/${client._id}/history`}>{client.firstName}</Link></td>
+              
+              
               <td>{client.lastName}</td>
               <td>{client.phoneNumber}</td>
               <td>{formatDate(client.firstJoinDate)}</td>
@@ -74,6 +76,7 @@ const ClientList = () => {
                 <Link to={`/edit-membership/${client._id}`}>
                     <button>Editar Membresía</button>
                   </Link>
+                  <Link to={`/client/${client._id}/history`}>Ver Historial</Link>
               </td>
             </tr>
           ))}
