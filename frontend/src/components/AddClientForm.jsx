@@ -188,6 +188,9 @@ const AddClientForm = () => {
       />
 
       {/* Campos de la membresía */}
+
+      <h2 class="text-2xl font-extrabold dark:text-white">Membresía</h2>
+
       <div>
         <Label htmlFor="startDate">Fecha de Inicio</Label>
         <Datepicker
