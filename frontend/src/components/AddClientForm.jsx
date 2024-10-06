@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { addClient } from "../services/api";
-import { Datepicker, Label, Select } from "flowbite-react";
+import { FloatingLabel, Button, Select, Datepicker } from "flowbite-react";
 
 const AddClientForm = () => {
   const [formData, setFormData] = useState({
@@ -24,31 +24,6 @@ const AddClientForm = () => {
     },
   });
 
-  const handleDateOfBirthChange = (date) => {
-    if (date) {
-      // Formatear la fecha en un formato ISO para la base de datos
-      const isoFormattedDate = new Date(date).toISOString().split("T")[0]; // "YYYY-MM-DD"
-      setFormData((prevState) => ({
-        ...prevState,
-        dateOfBirth: isoFormattedDate, // Guardar en formato ISO
-      }));
-    }
-  };
-
-  const handleDateChange = (date, type) => {
-    if (date) {
-      // Formatear la fecha en un formato ISO para la base de datos
-      const isoFormattedDate = new Date(date).toISOString().split("T")[0]; // "YYYY-MM-DD"
-      setFormData((prevState) => ({
-        ...prevState,
-        membership: {
-          ...prevState.membership,
-          [type]: isoFormattedDate, // Guardar en formato ISO
-        },
-      }));
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.includes(".")) {
@@ -62,6 +37,24 @@ const AddClientForm = () => {
       }));
     } else {
       setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleDateChange = (date, name) => {
+    const formattedDate = date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
+      setFormData((prev) => ({
+        ...prev,
+        [parent]: { ...prev[parent], [child]: formattedDate },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: formattedDate }));
     }
   };
 
@@ -96,291 +89,134 @@ const AddClientForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Añadir Nuevo Cliente
-      </h2>
-
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       {/* Campos del cliente */}
-      <div className="grid md:grid-cols-2 md:gap-6">
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="firstName"
-            id="floating_first_name"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-            value={formData.firstName}
-            onChange={handleChange}
-          />
-          <label
-            htmlFor="floating_first_name"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Nombres
-          </label>
-        </div>
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="lastName"
-            id="floating_last_name"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-            value={formData.lastName}
-            onChange={handleChange}
-          />
-          <label
-            htmlFor="floating_last_name"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Apellidos
-          </label>
-        </div>
-      </div>
-
-      <div className="relative z-0 w-full mb-5 group">
-        <input
-          type="email"
-          name="email"
-          id="floating_email"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required
-          value={formData.email}
-          onChange={handleChange}
-        />
-        <label
-          htmlFor="floating_email"
-          className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >
-          Correo
-        </label>
-      </div>
-
-      <div className="relative z-0 w-full mb-5 group">
-        <input
-          type="tel"
-          name="phoneNumber"
-          id="floating_phone"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required
-          value={formData.phoneNumber}
-          onChange={handleChange}
-        />
-        <label
-          htmlFor="floating_phone"
-          className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >
-          Teléfono
-        </label>
-      </div>
-
-      <div className="relative z-0 w-full mb-5 group">
-        <input
-          type="text"
-          name="address"
-          id="floating_address"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          value={formData.address}
-          onChange={handleChange}
-        />
-        <label
-          htmlFor="floating_address"
-          className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >
-          Dirección
-        </label>
-      </div>
-
-      <div className="max-w-md">
-        <div className="mb-2 block">
-          <Label htmlFor="dateOfBirth" value="Fecha de nacimiento" />
-        </div>
-        <Datepicker
-          id="dateOfBirth"
-          language="es-ES"
-          value={
-            formData.dateOfBirth
-              ? new Date(formData.dateOfBirth).toLocaleDateString("es-ES")
-              : ""
-          }
-          onSelectedDateChanged={handleDateOfBirthChange}
-          showClearButton={true}
-          showTodayButton={true}
-        />
-      </div>
-
-      {/* Contacto de emergencia */}
-      <div className="grid md:grid-cols-2 md:gap-6">
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="emergencyContact.name"
-            id="floating_emergency_name"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            value={formData.emergencyContact.name}
-            onChange={handleChange}
-          />
-          <label
-            htmlFor="floating_emergency_name"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Contacto de emergencia
-          </label>
-        </div>
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="tel"
-            name="emergencyContact.phoneNumber"
-            id="floating_emergency_phone"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            value={formData.emergencyContact.phoneNumber}
-            onChange={handleChange}
-          />
-          <label
-            htmlFor="floating_emergency_phone"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Teléfono de emergencia
-          </label>
-        </div>
-      </div>
+      <FloatingLabel
+        variant="filled"
+        label="Nombre"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
+        required
+      />
+      <FloatingLabel
+        variant="filled"
+        label="Apellido"
+        name="lastName"
+        value={formData.lastName}
+        onChange={handleChange}
+        required
+      />
+      <FloatingLabel
+        variant="filled"
+        label="Email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        type="email"
+      />
+      <FloatingLabel
+        variant="filled"
+        label="Teléfono"
+        name="phoneNumber"
+        value={formData.phoneNumber}
+        onChange={handleChange}
+        required
+      />
+      <FloatingLabel
+        variant="filled"
+        label="Dirección"
+        name="address"
+        value={formData.address}
+        onChange={handleChange}
+      />
+      <Datepicker
+        language="es-ES"
+        labelTodayButton="Hoy"
+        labelClearButton="Limpiar"
+        name="dateOfBirth"
+        onSelectedDateChanged={(date) => handleDateChange(date, "dateOfBirth")}
+        value={formData.dateOfBirth}
+      />
+      <FloatingLabel
+        variant="filled"
+        label="Nombre de contacto de emergencia"
+        name="emergencyContact.name"
+        value={formData.emergencyContact.name}
+        onChange={handleChange}
+      />
+      <FloatingLabel
+        variant="filled"
+        label="Teléfono de contacto de emergencia"
+        name="emergencyContact.phoneNumber"
+        value={formData.emergencyContact.phoneNumber}
+        onChange={handleChange}
+      />
 
       {/* Campos de la membresía */}
-      <h3 className="text-xl font-bold mb-4 mt-8">Información de Membresía</h3>
-
-      <div className="mb-4">
-        <label
-          htmlFor="startDate"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-        >
-          Fecha de inicio
-        </label>
-        <Datepicker
-          id="startDate"
-          language="es-ES"
-          value={
-            formData.membership.startDate
-              ? new Date(formData.membership.startDate).toLocaleDateString(
-                  "es-ES"
-                )
-              : ""
-          }
-          onSelectedDateChanged={(date) => handleDateChange(date, "startDate")}
-          showClearButton={false}
-          showTodayButton={false}
-        />
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="endDate"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-        >
-          Fecha de fin
-        </label>
-        <Datepicker
-          id="endDate"
-          language="es-ES"
-          value={
-            formData.membership.endDate
-              ? new Date(formData.membership.endDate).toLocaleDateString(
-                  "es-ES"
-                )
-              : ""
-          }
-          onSelectedDateChanged={(date) => handleDateChange(date, "endDate")}
-          showClearButton={false}
-          showTodayButton={false}
-        />
-      </div>
-
-      <div className="max-w-md">
-        <div className="mb-2 block">
-          <Label htmlFor="membership_type" value="Tipo de membresía" />
-        </div>
-        <Select
-          id="membership_type"
-          name="membership.type"
-          required
-          value={formData.membership.type}
-          onChange={handleChange}
-        >
-          <option value="">Seleccione el tipo de membresía</option>
-          <option value="mensual">Mensual</option>
-          <option value="trimestral">Trimestral</option>
-          <option value="semestral">Semestral</option>
-          <option value="anual">Anual</option>
-        </Select>
-      </div>
-
-      <div className="relative z-0 w-full mb-5 group">
-        <input
-          type="number"
-          name="membership.price"
-          id="floating_price"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required
-          value={formData.membership.price}
-          onChange={handleChange}
-        />
-        <label
-          htmlFor="floating_price"
-          className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >
-          Precio
-        </label>
-      </div>
-
-      <div className="max-w-md">
-        <div className="mb-2 block">
-          <Label htmlFor="payment_method" value="Método de pago" />
-        </div>
-        <Select
-          id="payment_method"
-          name="membership.paymentMethod"
-          required
-          value={formData.membership.paymentMethod}
-          onChange={handleChange}
-        >
-          <option value="">Seleccione el método de pago</option>
-          <option value="efectivo">Efectivo</option>
-          <option value="transferencia">Transferencia</option>
-        </Select>
-      </div>
-
-      <div className="relative z-0 w-full mb-5 group">
-        <textarea
-          name="membership.notes"
-          id="floating_notes"
-          rows="4"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          value={formData.membership.notes}
-          onChange={handleChange}
-        ></textarea>
-        <label
-          htmlFor="floating_notes"
-          className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >
-          Notas adicionales
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      <Datepicker
+        language="es-ES"
+        labelTodayButton="Hoy"
+        labelClearButton="Limpiar"
+        name="membership.startDate"
+        onSelectedDateChanged={(date) =>
+          handleDateChange(date, "membership.startDate")
+        }
+        value={formData.membership.startDate}
+      />
+      <Datepicker
+        language="es-ES"
+        labelTodayButton="Hoy"
+        labelClearButton="Limpiar"
+        name="membership.endDate"
+        onSelectedDateChanged={(date) =>
+          handleDateChange(date, "membership.endDate")
+        }
+        value={formData.membership.endDate}
+      />
+      <Select
+        id="membership.type"
+        name="membership.type"
+        value={formData.membership.type}
+        onChange={handleChange}
+        required
       >
-        Añadir Cliente y Membresía
-      </button>
+        <option value="">Seleccione el tipo de membresía</option>
+        <option value="mensual">Mensual</option>
+        <option value="trimestral">Trimestral</option>
+        <option value="semestral">Semestral</option>
+        <option value="anual">Anual</option>
+      </Select>
+      <FloatingLabel
+        variant="filled"
+        label="Precio"
+        name="membership.price"
+        value={formData.membership.price}
+        onChange={handleChange}
+        type="number"
+        required
+      />
+      <Select
+        id="membership.paymentMethod"
+        name="membership.paymentMethod"
+        value={formData.membership.paymentMethod}
+        onChange={handleChange}
+        required
+      >
+        <option value="">Seleccione el método de pago</option>
+        <option value="efectivo">Efectivo</option>
+        <option value="transferencia">Transferencia</option>
+      </Select>
+      <FloatingLabel
+        variant="filled"
+        label="Notas"
+        name="membership.notes"
+        value={formData.membership.notes}
+        onChange={handleChange}
+      />
+
+      <Button type="submit">Añadir Cliente y Membresía</Button>
     </form>
   );
 };
