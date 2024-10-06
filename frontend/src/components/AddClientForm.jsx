@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { addClient } from "../services/api";
-import { FloatingLabel, Button, Select, Datepicker } from "flowbite-react";
+import {
+  FloatingLabel,
+  Button,
+  Select,
+  Datepicker,
+  Label,
+} from "flowbite-react";
 
 const AddClientForm = () => {
   const [formData, setFormData] = useState({
@@ -61,7 +67,28 @@ const AddClientForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await addClient(formData);
+      // Convertir las fechas a objetos Date antes de enviar
+      const formDataToSend = {
+        ...formData,
+        dateOfBirth: formData.dateOfBirth
+          ? new Date(formData.dateOfBirth.split("/").reverse().join("-"))
+          : null,
+        membership: {
+          ...formData.membership,
+          startDate: formData.membership.startDate
+            ? new Date(
+                formData.membership.startDate.split("/").reverse().join("-")
+              )
+            : null,
+          endDate: formData.membership.endDate
+            ? new Date(
+                formData.membership.endDate.split("/").reverse().join("-")
+              )
+            : null,
+        },
+      };
+
+      const response = await addClient(formDataToSend);
       console.log("Cliente y membresía añadidos:", response.data);
       alert("Cliente y membresía añadidos con éxito");
       // Resetear el formulario
@@ -90,6 +117,7 @@ const AddClientForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
+      <h2 class="text-4xl font-extrabold dark:text-white">Añadir cliente</h2>
       {/* Campos del cliente */}
       <FloatingLabel
         variant="filled"
@@ -131,14 +159,19 @@ const AddClientForm = () => {
         value={formData.address}
         onChange={handleChange}
       />
-      <Datepicker
-        language="es-ES"
-        labelTodayButton="Hoy"
-        labelClearButton="Limpiar"
-        name="dateOfBirth"
-        onSelectedDateChanged={(date) => handleDateChange(date, "dateOfBirth")}
-        value={formData.dateOfBirth}
-      />
+      <div>
+        <Label htmlFor="startDate">Fecha de Nacimiento</Label>
+        <Datepicker
+          language="es-ES"
+          labelTodayButton="Hoy"
+          labelClearButton="Limpiar"
+          name="dateOfBirth"
+          onSelectedDateChanged={(date) =>
+            handleDateChange(date, "dateOfBirth")
+          }
+          value={formData.dateOfBirth}
+        />
+      </div>
       <FloatingLabel
         variant="filled"
         label="Nombre de contacto de emergencia"
@@ -155,26 +188,32 @@ const AddClientForm = () => {
       />
 
       {/* Campos de la membresía */}
-      <Datepicker
-        language="es-ES"
-        labelTodayButton="Hoy"
-        labelClearButton="Limpiar"
-        name="membership.startDate"
-        onSelectedDateChanged={(date) =>
-          handleDateChange(date, "membership.startDate")
-        }
-        value={formData.membership.startDate}
-      />
-      <Datepicker
-        language="es-ES"
-        labelTodayButton="Hoy"
-        labelClearButton="Limpiar"
-        name="membership.endDate"
-        onSelectedDateChanged={(date) =>
-          handleDateChange(date, "membership.endDate")
-        }
-        value={formData.membership.endDate}
-      />
+      <div>
+        <Label htmlFor="startDate">Fecha de Inicio</Label>
+        <Datepicker
+          language="es-ES"
+          labelTodayButton="Hoy"
+          labelClearButton="Limpiar"
+          name="membership.startDate"
+          onSelectedDateChanged={(date) =>
+            handleDateChange(date, "membership.startDate")
+          }
+          value={formData.membership.startDate}
+        />
+      </div>
+      <div>
+        <Label htmlFor="startDate">Fecha de Fin</Label>
+        <Datepicker
+          language="es-ES"
+          labelTodayButton="Hoy"
+          labelClearButton="Limpiar"
+          name="membership.endDate"
+          onSelectedDateChanged={(date) =>
+            handleDateChange(date, "membership.endDate")
+          }
+          value={formData.membership.endDate}
+        />
+      </div>
       <Select
         id="membership.type"
         name="membership.type"
