@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getClientMemberships, getClientById } from '../services/api';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { getClientMemberships, getClientById } from "../services/api";
+import { Card, Table, Badge, Spinner } from "flowbite-react";
 
 const UserHistory = () => {
   const [memberships, setMemberships] = useState([]);
@@ -14,10 +15,9 @@ const UserHistory = () => {
         setClient(clientResponse.data);
 
         const membershipsResponse = await getClientMemberships(id);
-        console.log("MEMBERSHIP?",membershipsResponse)
         setMemberships(membershipsResponse.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -28,49 +28,94 @@ const UserHistory = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  if (!client) return <div>Cargando...</div>;
+  if (!client)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner size="xl" />
+      </div>
+    );
 
   return (
-    <div>
-      <h2>Perfil e Historial de Membresías de {client.firstName} {client.lastName}</h2>
-      
-      <section>
-        <h3>Información del Cliente</h3>
-        <p><strong>Nombre completo:</strong> {client.firstName} {client.lastName}</p>
-        <p><strong>Email:</strong> {client.email}</p>
-        <p><strong>Teléfono:</strong> {client.phoneNumber}</p>
-        <p><strong>Dirección:</strong> {client.address}</p>
-        <p><strong>Fecha de nacimiento:</strong> {formatDate(client.dateOfBirth)}</p>
-        <h4>Contacto de Emergencia</h4>
-        <p><strong>Nombre:</strong> {client.emergencyContact.name}</p>
-        <p><strong>Teléfono:</strong> {client.emergencyContact.phoneNumber}</p>
-      </section>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Perfil e Historial de Membresías de {client.firstName} {client.lastName}
+      </h2>
 
-      <section>
-        <h3>Historial de Membresías</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Fecha de Inicio</th>
-              <th>Fecha de Fin</th>
-              <th>Estado</th>
-              <th>Precio</th>
-            </tr>
-          </thead>
-          <tbody>
-            {memberships.map(membership => (
-              <tr key={membership._id}>
-                <td>{membership.type}</td>
-                <td>{formatDate(membership.startDate)}</td>
-                <td>{formatDate(membership.endDate)}</td>
-                <td>{membership.status}</td>
-                <td>{membership.price}</td>
-              </tr>
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <h3 className="text-xl font-semibold mb-4">
+            Información del Cliente
+          </h3>
+          <div className="space-y-2">
+            <p>
+              <strong>Nombre completo:</strong> {client.firstName}{" "}
+              {client.lastName}
+            </p>
+            <p>
+              <strong>Email:</strong> {client.email}
+            </p>
+            <p>
+              <strong>Teléfono:</strong> {client.phoneNumber}
+            </p>
+            <p>
+              <strong>Dirección:</strong> {client.address}
+            </p>
+            <p>
+              <strong>Fecha de nacimiento:</strong>{" "}
+              {formatDate(client.dateOfBirth)}
+            </p>
+          </div>
+        </Card>
+
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">Contacto de Emergencia</h4>
+          <div className="space-y-2">
+            <p>
+              <strong>Nombre:</strong> {client.emergencyContact.name}
+            </p>
+            <p>
+              <strong>Teléfono:</strong> {client.emergencyContact.phoneNumber}
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      <Card className="mt-6">
+        <h3 className="text-xl font-semibold mb-4">Historial de Membresías</h3>
+        <Table striped>
+          <Table.Head>
+            <Table.HeadCell>Tipo</Table.HeadCell>
+            <Table.HeadCell>Fecha de Inicio</Table.HeadCell>
+            <Table.HeadCell>Fecha de Fin</Table.HeadCell>
+            <Table.HeadCell>Estado</Table.HeadCell>
+            <Table.HeadCell>Precio</Table.HeadCell>
+          </Table.Head>
+          <Table.Body className="divide-y">
+            {memberships.map((membership) => (
+              <Table.Row
+                key={membership._id}
+                className="bg-white dark:border-gray-700 dark:bg-gray-800"
+              >
+                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                  {membership.type}
+                </Table.Cell>
+                <Table.Cell>{formatDate(membership.startDate)}</Table.Cell>
+                <Table.Cell>{formatDate(membership.endDate)}</Table.Cell>
+                <Table.Cell>
+                  <Badge
+                    color={
+                      membership.status === "activo" ? "success" : "failure"
+                    }
+                  >
+                    {membership.status}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell>${membership.price}</Table.Cell>
+              </Table.Row>
             ))}
-          </tbody>
-        </table>
-      </section>
+          </Table.Body>
+        </Table>
+      </Card>
     </div>
   );
 };

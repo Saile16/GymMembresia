@@ -12,7 +12,7 @@ exports.getClients = async (req, res) => {
       clients.map(async (client) => {
         const currentMembership = await Membership.findOne({
           client: client._id,
-          status: "active",
+          status: "activo",
         }).sort("-endDate");
 
         return {

@@ -16,8 +16,8 @@ const MembershipSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "expired", "cancelled"],
-      default: "active",
+      enum: ["activo", "expirado", "cancelado"],
+      default: "activo",
     },
     price: { type: Number, required: true },
     paymentMethod: {

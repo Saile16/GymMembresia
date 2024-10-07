@@ -9,7 +9,7 @@ exports.getClientWithCurrentMembership = async (req, res) => {
     }
     const currentMembership = await Membership.findOne({
       client: client._id,
-      status: "active",
+      status: "activo",
     })
       .sort("-endDate")
       .limit(1);
@@ -43,7 +43,7 @@ exports.renewMembership = async (req, res) => {
     // Obtener la membresía activa actual
     const currentMembership = await Membership.findOne({
       client: clientId,
-      status: "active",
+      status: "activo",
     });
 
     if (!currentMembership) {
@@ -88,7 +88,7 @@ exports.renewMembership = async (req, res) => {
       price,
       paymentMethod,
       notes,
-      status: "active",
+      status: "activo",
     });
 
     await newMembership.save();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getClients } from "../services/api";
 import { Link } from "react-router-dom";
+import { Table, Badge, Button } from "flowbite-react";
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
@@ -39,100 +40,80 @@ const ClientList = () => {
   };
 
   return (
-    <div>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Nombres y Apellidos
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Teléfono
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Fecha de unión
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Inicio membresía
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Fin membresía
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Estado
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {clients.map((client, index) => (
-              <tr
-                key={client._id}
-                className={`${
-                  index % 2 === 0
-                    ? "bg-white dark:bg-gray-900"
-                    : "bg-gray-50 dark:bg-gray-800"
-                } border-b dark:border-gray-700`}
-              >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+    <div className="container mx-auto p-4">
+      <Table striped>
+        <Table.Head>
+          <Table.HeadCell>Nombres y Apellidos</Table.HeadCell>
+          <Table.HeadCell>Teléfono</Table.HeadCell>
+          <Table.HeadCell>Fecha de unión</Table.HeadCell>
+          <Table.HeadCell>Inicio membresía</Table.HeadCell>
+          <Table.HeadCell>Fin membresía</Table.HeadCell>
+          <Table.HeadCell>Estado</Table.HeadCell>
+          <Table.HeadCell>Acciones</Table.HeadCell>
+        </Table.Head>
+        <Table.Body className="divide-y">
+          {clients.map((client) => (
+            <Table.Row
+              key={client._id}
+              className="bg-white dark:border-gray-700 dark:bg-gray-800"
+            >
+              <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                <Link
+                  to={`/client/${client._id}/history`}
+                  className="hover:underline"
                 >
-                  <Link
-                    to={`/client/${client._id}/history`}
-                    className="hover:underline"
-                  >
-                    {client.firstName} {client.lastName}
-                  </Link>
-                </th>
-
-                <td className="px-6 py-4">{client.phoneNumber}</td>
-                <td className="px-6 py-4">
-                  {formatDate(client.firstJoinDate)}
-                </td>
-                <td className="px-6 py-4">
-                  {formatDate(client.currentMembershipStart)}
-                </td>
-                <td className="px-6 py-4">
-                  {formatDate(client.currentMembershipEnd)}
-                </td>
-                <td className="px-6 py-4">{client.status}</td>
-                <td className="px-6 py-4">
+                  {client.firstName} {client.lastName}
+                </Link>
+              </Table.Cell>
+              <Table.Cell>{client.phoneNumber}</Table.Cell>
+              <Table.Cell>{formatDate(client.firstJoinDate)}</Table.Cell>
+              <Table.Cell>
+                {formatDate(client.currentMembershipStart)}
+              </Table.Cell>
+              <Table.Cell>{formatDate(client.currentMembershipEnd)}</Table.Cell>
+              <Table.Cell>
+                <Badge
+                  color={client.status === "activo" ? "success" : "failure"}
+                >
+                  {client.status}
+                </Badge>
+              </Table.Cell>
+              <Table.Cell>
+                <div className="flex flex-wrap gap-2">
                   {isExpiringOrExpired(client.currentMembershipEnd) && (
-                    <Link
+                    <Button
+                      as={Link}
                       to={`/renew-membership/${client._id}`}
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2"
+                      size="xs"
+                      color="warning"
                     >
                       Renovar
-                    </Link>
+                    </Button>
                   )}
-                  <Link
-                    to={`/edit-client/${client._id}`}
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2"
-                  >
+                  <Button as={Link} to={`/edit-client/${client._id}`} size="xs">
                     Editar Cliente
-                  </Link>
-                  <Link
+                  </Button>
+                  <Button
+                    as={Link}
                     to={`/edit-membership/${client._id}`}
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2"
+                    size="xs"
                   >
                     Editar Membresía
-                  </Link>
-                  <Link
+                  </Button>
+                  <Button
+                    as={Link}
                     to={`/client/${client._id}/history`}
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                    size="xs"
+                    color="light"
                   >
                     Ver Historial
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </Button>
+                </div>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
     </div>
   );
 };
