@@ -89,6 +89,7 @@ const UserHistory = () => {
             <Table.HeadCell>Fecha de Fin</Table.HeadCell>
             <Table.HeadCell>Estado</Table.HeadCell>
             <Table.HeadCell>Precio</Table.HeadCell>
+            <Table.HeadCell>Notas</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y">
             {memberships.map((membership) => (
@@ -101,16 +102,25 @@ const UserHistory = () => {
                 </Table.Cell>
                 <Table.Cell>{formatDate(membership.startDate)}</Table.Cell>
                 <Table.Cell>{formatDate(membership.endDate)}</Table.Cell>
-                <Table.Cell>
-                  <Badge
-                    color={
-                      membership.status === "activo" ? "success" : "failure"
-                    }
-                  >
-                    {membership.status}
-                  </Badge>
+                <Table.Cell className="p-0">
+                  {" "}
+                  {/* Eliminamos el padding predeterminado */}
+                  <div className="flex items-center justify-center h-full">
+                    <Badge
+                      size="sm"
+                      color={
+                        membership.status.toLowerCase() === "activo"
+                          ? "success"
+                          : "failure"
+                      }
+                      className="w-full text-center py-1 text-xs font-medium capitalize"
+                    >
+                      {membership.status}
+                    </Badge>
+                  </div>
                 </Table.Cell>
-                <Table.Cell>${membership.price}</Table.Cell>
+                <Table.Cell>S/ {membership.price}</Table.Cell>
+                <Table.Cell>{membership.notes}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>

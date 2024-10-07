@@ -2,8 +2,8 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api";
 
-export const getClients = (page = 1, limit = 10) =>
-  axios.get(`${API_URL}/clients`, { params: { page, limit } });
+export const getClients = (page = 1, limit = 10, search = "") =>
+  axios.get(`${API_URL}/clients`, { params: { page, limit, search } });
 
 // El resto de las funciones permanecen igual
 export const getClientById = (id) => axios.get(`${API_URL}/clients/${id}`);

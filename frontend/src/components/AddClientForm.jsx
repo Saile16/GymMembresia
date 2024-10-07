@@ -172,6 +172,9 @@ const AddClientForm = () => {
           value={formData.dateOfBirth}
         />
       </div>
+      <h2 class="text-2xl font-extrabold dark:text-white">
+        Contacto de Emergencia
+      </h2>
       <FloatingLabel
         variant="filled"
         label="Nombre de contacto de emergencia"

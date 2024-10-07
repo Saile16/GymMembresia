@@ -53,7 +53,7 @@ exports.renewMembership = async (req, res) => {
     }
 
     // Marcar la membresía actual como expirada
-    currentMembership.status = "expired";
+    currentMembership.status = "expirado";
     await currentMembership.save();
 
     // Calcular la nueva fecha de inicio (un día después del fin de la membresía actual)
