@@ -4,9 +4,16 @@ const membershipController = require("./membershipController");
 
 exports.getClients = async (req, res) => {
   try {
-    const clients = await Client.find().select(
-      "firstName lastName phoneNumber firstJoinDate"
-    );
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalClients = await Client.countDocuments();
+
+    const clients = await Client.find()
+      .select("firstName lastName phoneNumber firstJoinDate")
+      .skip(skip)
+      .limit(limit);
 
     const clientsWithMembership = await Promise.all(
       clients.map(async (client) => {
@@ -31,8 +38,13 @@ exports.getClients = async (req, res) => {
         };
       })
     );
-    console.log("CLIENTE QUE ES ? ", clientsWithMembership);
-    res.json(clientsWithMembership);
+
+    res.json({
+      clients: clientsWithMembership,
+      currentPage: page,
+      totalPages: Math.ceil(totalClients / limit),
+      totalClients,
+    });
   } catch (err) {
     console.error("Error fetching clients:", err);
     res.status(500).json({ message: err.message });

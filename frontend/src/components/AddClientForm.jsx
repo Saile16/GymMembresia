@@ -258,7 +258,7 @@ const AddClientForm = () => {
         onChange={handleChange}
       />
 
-      <Button type="submit">Añadir Cliente y Membresía</Button>
+      <Button type="submit">Guardar</Button>
     </form>
   );
 };

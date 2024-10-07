@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { getClients } from "../services/api";
 import { Link } from "react-router-dom";
-import { Table, Badge, Button } from "flowbite-react";
+import { Table, Badge, Button, Pagination } from "flowbite-react";
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const clientsPerPage = 10; // Puedes ajustar este número según tus necesidades
 
   useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const response = await getClients();
-        setClients(response.data);
-        console.log("CLIENTE ES ?", response.data);
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-      }
-    };
-
     fetchClients();
-  }, []);
+  }, [currentPage]);
+
+  const fetchClients = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getClients(currentPage, clientsPerPage);
+      setClients(response.data.clients);
+      setTotalPages(response.data.totalPages);
+      console.log("Clientes cargados:", response.data.clients);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -37,6 +45,10 @@ const ClientList = () => {
       (end - today) / (1000 * 60 * 60 * 24)
     );
     return daysUntilExpiration <= 7 || daysUntilExpiration < 0;
+  };
+
+  const onPageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -114,6 +126,17 @@ const ClientList = () => {
           ))}
         </Table.Body>
       </Table>
+
+      <div className="flex overflow-x-auto sm:justify-center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+          showIcons={true}
+          previousLabel="Atrás"
+          nextLabel="Siguiente"
+        />
+      </div>
     </div>
   );
 };
